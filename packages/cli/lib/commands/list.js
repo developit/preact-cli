@@ -1,12 +1,11 @@
-const fetch = require('isomorphic-unfetch');
 const { bold, magenta } = require('kleur');
-const { error, info } = require('../util');
 
-const REPOS_URL = 'https://api.github.com/users/preactjs-templates/repos';
+const { error, info } = require('../util');
+const { fetchTemplates } = require('../template-listings-helper');
 
 module.exports = async function() {
 	try {
-		const repos = await fetch(REPOS_URL).then(r => r.json());
+		const repos = await fetchTemplates();
 
 		process.stdout.write('\n');
 		info('Available official templates: \n');
@@ -14,7 +13,7 @@ module.exports = async function() {
 		repos.map(repo => {
 			const description = repo.description ? ` - ${repo.description}` : '';
 			process.stdout.write(
-				`  ⭐️  ${bold(magenta(repo.name))}${description} \n`
+				`  ⭐️  ${bold(magenta(repo.title))}${description} \n`
 			);
 		});
 

@@ -42,11 +42,3 @@ exports.error = function(text, code = 1) {
 exports.normalizePath = function(str) {
 	return normalize(str).replace(/\\/g, '/');
 };
-
-exports.normalizeTemplatesResponse = function(repos = []) {
-	return repos.map(repo => ({
-		title: repo.name || '',
-		value: repo.full_name || '',
-		description: repo.description || '',
-	}));
-};
