@@ -95,7 +95,6 @@
     "ejs-loader": "^0.3.3",
     "envinfo": "^7.3.1",
     "esm": "^3.2.25",
-    "fast-async": "^6.3.7",
     "file-loader": "^6.0.0",
     "fork-ts-checker-webpack-plugin": "^4.0.4",
     "get-port": "^5.0.0",
