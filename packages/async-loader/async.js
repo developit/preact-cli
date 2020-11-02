@@ -49,12 +49,11 @@ export default function async(load) {
 			const me =
 				(prev && prev.nextSibling) || (this.__P || this._parentDom).firstChild;
 
-			return (
-				me &&
-				h(me.localName, {
-					dangerouslySetInnerHTML: PENDING,
-				})
-			);
+			if (!me) return;
+			if (me.nodeType === 3) return me.data;
+			return h(me.localName, {
+				dangerouslySetInnerHTML: PENDING,
+			});
 		};
 	}
 
