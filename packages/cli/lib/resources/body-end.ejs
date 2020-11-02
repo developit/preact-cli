@@ -1,18 +1,18 @@
-<%= htmlWebpackPlugin.options.ssr() %>
+<%= cli.ssr %>
 <script type="__PREACT_CLI_DATA__">
-	<%= encodeURI(JSON.stringify(htmlWebpackPlugin.options.CLI_DATA)) %>
+	<%= encodeURI(JSON.stringify(cli.CLI_DATA)) %>
 </script>
-<% if (webpack.assets.filter(entry => entry.name.match(/bundle(\.\w{5})?.esm.js$/)).length > 0) { %>
+<% if (htmlWebpackPlugin.files.js.filter(entry => entry.match(/bundle(\.\w{5})?.esm.js$/)).length > 0) { %>
 	<% /* Fix for safari < 11 nomodule bug. TODO: Do the following only for safari. */ %>
 	<script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()},!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
-	<script crossorigin="anonymous" src="<%= htmlWebpackPlugin.files.publicPath %><%= webpack.assets.filter(entry => entry.name.match(/bundle(\.\w{5})?.esm.js$/))[0].name %>" type="module"></script>
+	<script crossorigin="anonymous" src="<%= htmlWebpackPlugin.files.js.filter(entry => entry.match(/bundle(\.\w{5})?.esm.js$/))[0] %>" type="module"></script>
 	<%
 		/*Fetch and Promise polyfills are not needed for browsers that support type=module
 		Please re-evaluate below line if adding more polyfills.*/
 	%>
-	<script nomodule src="<%= htmlWebpackPlugin.files.chunks["polyfills"].entry %>"></script>
-	<script nomodule defer src="<%= htmlWebpackPlugin.files.chunks['bundle'].entry %>"></script>
+	<script nomodule src="<%= cli.entrypoints['polyfills'] %>"></script>
+	<script nomodule defer src="<%= cli.entrypoints['bundle'] %>"></script>
 <% } else { %>
-	<script <%= htmlWebpackPlugin.options.scriptLoading %>  src="<%= htmlWebpackPlugin.files.chunks['bundle'].entry %>"></script>
-	<script nomodule src="<%= htmlWebpackPlugin.files.chunks["polyfills"].entry %>"></script>
+	<script <%= htmlWebpackPlugin.options.scriptLoading %>  src="<%= cli.entrypoints['bundle'] %>"></script>
+	<script nomodule src="<%= cli.entrypoints['polyfills'] %>"></script>
 <% } %>

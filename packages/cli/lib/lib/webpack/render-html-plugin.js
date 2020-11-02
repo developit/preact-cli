@@ -1,7 +1,9 @@
 const { resolve, join } = require('path');
 const os = require('os');
 const { existsSync, readFileSync, writeFileSync, mkdirSync } = require('fs');
-const HtmlWebpackExcludeAssetsPlugin = require('html-webpack-exclude-assets-plugin');
+const {
+	HtmlWebpackSkipAssetsPlugin,
+} = require('html-webpack-skip-assets-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const prerender = require('./prerender');
 const createLoadManifest = require('./create-load-manifest');
@@ -15,8 +17,8 @@ function read(path) {
 	return readFileSync(resolve(__dirname, path), 'utf-8');
 }
 
-module.exports = async function (config) {
-	const { cwd, dest, isProd, src } = config;
+module.exports = async function renderHTMLPlugin(config) {
+	const { cwd, dest, src } = config;
 	const inProjectTemplatePath = resolve(src, 'template.html');
 	let template = defaultTemplate;
 	if (existsSync(inProjectTemplatePath)) {
@@ -25,8 +27,9 @@ module.exports = async function (config) {
 
 	if (config.template) {
 		const templatePathFromArg = resolve(cwd, config.template);
-		if (existsSync(templatePathFromArg)) template = templatePathFromArg;
-		else {
+		if (existsSync(templatePathFromArg)) {
+			template = templatePathFromArg;
+		} else {
 			warn(`Template not found at ${templatePathFromArg}`);
 		}
 	}
@@ -36,10 +39,7 @@ module.exports = async function (config) {
 		const headEnd = read('../../resources/head-end.ejs');
 		const bodyEnd = read('../../resources/body-end.ejs');
 		content = content
-			.replace(
-				/<%[=]?\s+preact\.title\s+%>/,
-				'<%= htmlWebpackPlugin.options.title %>'
-			)
+			.replace(/<%[=]?\s+preact\.title\s+%>/, '<%= cli.title %>')
 			.replace(/<%\s+preact\.headEnd\s+%>/, headEnd)
 			.replace(/<%\s+preact\.bodyEnd\s+%>/, bodyEnd);
 
@@ -54,47 +54,66 @@ module.exports = async function (config) {
 	}
 
 	const htmlWebpackConfig = values => {
-		const { url, title, ...routeData } = values;
-		return Object.assign(values, {
+		let { url, title, ...routeData } = values;
+
+		title =
+			title ||
+			config.title ||
+			config.manifest.name ||
+			config.manifest.short_name ||
+			(config.pkg.name || '').replace(/^@[a-z]\//, '') ||
+			'Preact App';
+
+		return {
+			title,
 			filename: resolve(dest, url.substring(1), 'index.html'),
 			template: `!!ejs-loader?esModule=false!${template}`,
-			minify: isProd && {
-				collapseWhitespace: true,
-				removeScriptTypeAttributes: true,
-				removeRedundantAttributes: true,
-				removeStyleLinkTypeAttributes: true,
-				removeComments: true,
+			templateParameters: (compilation, assets, assetTags, options) => {
+				let entrypoints = {};
+				compilation.entrypoints.forEach((entrypoint, name) => {
+					let entryFiles = entrypoint.getFiles();
+					entrypoints[name] =
+						assets.publicPath +
+						entryFiles.find(file => /\.(m?js)(\?|$)/.test(file));
+				});
+
+				let loadManifest = compilation.assets['push-manifest.json']
+					? JSON.parse(compilation.assets['push-manifest.json'].source())
+					: createLoadManifest(
+							compilation.assets,
+							config.esm,
+							compilation.namedChunkGroups
+					  );
+
+				return {
+					cli: {
+						title,
+						url,
+						manifest: config.manifest,
+						inlineCss: config['inline-css'],
+						preload: config.preload,
+						config,
+						preRenderData: values,
+						CLI_DATA: { preRenderData: { url, ...routeData } },
+						ssr: config.prerender ? prerender({ cwd, dest, src }, values) : '',
+						loadManifest,
+						entrypoints,
+					},
+					htmlWebpackPlugin: {
+						tags: assetTags,
+						files: assets,
+						options: options,
+					},
+				};
 			},
+			inject: true,
+			scriptLoading: 'defer',
 			favicon: existsSync(resolve(src, 'assets/favicon.ico'))
 				? 'assets/favicon.ico'
 				: '',
-			inject: true,
-			compile: true,
-			inlineCss: config['inline-css'],
-			preload: config.preload,
-			manifest: config.manifest,
-			title:
-				title ||
-				config.title ||
-				config.manifest.name ||
-				config.manifest.short_name ||
-				(config.pkg.name || '').replace(/^@[a-z]\//, '') ||
-				'Preact App',
 			excludeAssets: [/(bundle|polyfills)(\..*)?\.js$/],
-			createLoadManifest: (assets, namedChunkGroups) => {
-				if (assets['push-manifest.json']) {
-					return JSON.parse(assets['push-manifest.json'].source());
-				}
-				return createLoadManifest(assets, config.esm, namedChunkGroups);
-			},
-			config,
-			url,
-			ssr() {
-				return config.prerender ? prerender({ cwd, dest, src }, values) : '';
-			},
-			scriptLoading: 'defer',
-			CLI_DATA: { preRenderData: { url, ...routeData } },
-		});
+			// excludeChunks: ['bundle', 'polyfills'],
+		};
 	};
 
 	let pages = [{ url: '/' }];
@@ -141,18 +160,18 @@ module.exports = async function (config) {
 	return pages
 		.map(htmlWebpackConfig)
 		.map(conf => new HtmlWebpackPlugin(conf))
-		.concat([new HtmlWebpackExcludeAssetsPlugin()])
+		.concat([new HtmlWebpackSkipAssetsPlugin()])
 		.concat([...pages.map(page => new PrerenderDataExtractPlugin(page))]);
 };
 
 // Adds a preact_prerender_data in every folder so that the data could be fetched separately.
 class PrerenderDataExtractPlugin {
 	constructor(page) {
-		const cliData = page.CLI_DATA || {};
-		const { url } = cliData.preRenderData || {};
+		const url = page.url;
 		this.location_ = url.endsWith('/') ? url : url + '/';
-		this.data_ = JSON.stringify(cliData.preRenderData || {});
+		this.data_ = JSON.stringify(page || {});
 	}
+
 	apply(compiler) {
 		compiler.hooks.emit.tap('PrerenderDataExtractPlugin', compilation => {
 			let path = this.location_ + PRERENDER_DATA_FILE_NAME;

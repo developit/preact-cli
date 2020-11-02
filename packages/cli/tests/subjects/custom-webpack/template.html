@@ -2,13 +2,11 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title><%= htmlWebpackPlugin.options.title %></title>
+		<title><%= cli.title %></title>
 	</head>
 	<body>
 		<h1>Guess what</h1>
-		<%= htmlWebpackPlugin.options.ssr({
-			url: '/'
-		}) %>
-		<script defer src="<%= htmlWebpackPlugin.files.chunks['bundle'].entry %>"></script>
+		<%= cli.ssr %>
+		<script	defer	src="<%= cli.entrypoints['bundle'] %>"></script>
 	</body>
 </html>
