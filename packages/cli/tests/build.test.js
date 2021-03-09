@@ -208,6 +208,16 @@ describe('preact build', () => {
 		expect(() => build(dir)).not.toThrow();
 	});
 
+	it('should import non-modules CSS even when side effects are false', async () => {
+		let dir = await subject('side-effect-css');
+		await build(dir);
+
+		let head = await getHead(dir);
+		expect(head).toEqual(
+			expect.stringMatching(getRegExpFromMarkup(images.sideEffectCss))
+		);
+	});
+
 	it('should copy resources from static to build directory', async () => {
 		let dir = await subject('static-root');
 		await build(dir);

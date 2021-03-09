@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "name": "side-effect-css",
+  "sideEffects": false
+}

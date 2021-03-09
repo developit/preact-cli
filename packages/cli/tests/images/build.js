@@ -53,6 +53,23 @@ exports.sass = `
 </body>
 `;
 
+exports.sideEffectCss = `
+<head>
+  <meta charset="utf-8">
+  <title>side-effect-css<\\/title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="apple-touch-icon" href=\\"\\/assets\\/icons\\/apple-touch-icon\\.png\\">
+  <link rel="manifest" href="\\/manifest\\.json">
+  <style>h1{background:#673ab8}<\\/style>
+  <link href=\\"/bundle.\\w{5}.css\\" rel=\\"stylesheet\\" media=\\"only x\\" onload=\\"this.media='all'\\">
+	<noscript>
+    <link rel=\\"stylesheet\\" href=\\"\\/bundle.\\w{5}.css\\">
+  </noscript>
+<\\/head>
+`;
+
 exports.prerender = {};
 
 exports.prerender.heads = {};
