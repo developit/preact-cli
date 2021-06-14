@@ -1,5 +1,15 @@
 # preact-cli
 
+## 3.3.0
+
+### Minor Changes
+
+- [#1580](https://github.com/preactjs/preact-cli/pull/1580) [`95198f3`](https://github.com/preactjs/preact-cli/commit/95198f36fa608f6edddfe527517b42fc48b2588d) Thanks [@developit](https://github.com/developit)! - Generate modern (approximately ES2017) code in development mode to better match production output.
+
+### Patch Changes
+
+- [#1573](https://github.com/preactjs/preact-cli/pull/1573) [`022d9a8`](https://github.com/preactjs/preact-cli/commit/022d9a8119ea9a4e09963ffbe5ee9adbc9fb0d92) Thanks [@rschristian](https://github.com/rschristian)! - Uses native FS promise API rather than promisifying manually
+
 ## 3.2.2
 
 ### Patch Changes
