@@ -5,6 +5,7 @@ const minimatch = require('minimatch');
 const pRetry = require('p-retry');
 const { promisify } = require('util');
 const glob = promisify(require('glob').glob);
+const hooks = require('../../lib/lib/webpack/hooks');
 
 const PER = 0.05; // % diff
 const LOG = !!process.env.WITH_LOG;
@@ -68,4 +69,5 @@ module.exports = {
 	sleep,
 	hasKey,
 	isWithin,
+	hooks,
 };
