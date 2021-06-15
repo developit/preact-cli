@@ -101,7 +101,9 @@ module.exports = async function (config) {
 					: '';
 			},
 			scriptLoading: 'defer',
-			CLI_DATA: { preRenderData: { url, ...routeData } },
+			CLI_DATA: Object.keys(routeData).length
+				? { preRenderData: { url, ...routeData } }
+				: undefined,
 		});
 	};
 
