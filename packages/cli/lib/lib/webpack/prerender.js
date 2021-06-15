@@ -32,7 +32,9 @@ module.exports = function (env, params) {
 		}));
 		return renderToString(preact.h(app, { ...params, url }));
 	} catch (err) {
-		let stack = stackTrace.parse(err).filter(s => s.getFileName() === entry)[0];
+		let stack = stackTrace
+			.parse(err)
+			.filter((s) => s.getFileName() === entry)[0];
 		if (!stack) {
 			throw err;
 		}
@@ -54,7 +56,7 @@ async function handlePrerenderError(err, env, stack, entry) {
 	}
 
 	if (sourceMapContent) {
-		await SourceMapConsumer.with(sourceMapContent, null, consumer => {
+		await SourceMapConsumer.with(sourceMapContent, null, (consumer) => {
 			position = consumer.originalPositionFor({
 				line: stack.getLineNumber(),
 				column: stack.getColumnNumber(),
@@ -100,17 +102,29 @@ async function handlePrerenderError(err, env, stack, entry) {
 
 	process.stderr.write('\n');
 	process.stderr.write(red(`${errorMessage}\n`));
-	process.stderr.write(`method: ${methodName}\n`);
-	if (sourceMapContent) {
-		process.stderr.write(
-			`at: ${sourcePath}:${position.line}:${position.column}\n`
-		);
-		process.stderr.write('\n');
-		process.stderr.write('Source code:\n\n');
-		process.stderr.write(sourceCodeHighlight);
-		process.stderr.write('\n');
+	// check if we have methodName (ie, the error originated in user code)
+	if (methodName) {
+		process.stderr.write(`method: ${methodName}\n`);
+		if (sourceMapContent & sourceCodeHighlight) {
+			process.stderr.write(
+				`at: ${sourcePath}:${position.line}:${position.column}\n`
+			);
+			process.stderr.write('\n');
+			process.stderr.write('Source code:\n\n');
+			process.stderr.write(sourceCodeHighlight);
+			process.stderr.write('\n');
+		} else {
+			process.stderr.write('\n');
+			process.stderr.write('Stack:\n\n');
+			process.stderr.write(JSON.stringify(stack, null, 4) + '\n');
+		}
 	} else {
-		process.stderr.write(stack.toString() + '\n');
+		process.stderr.write(
+			yellow(
+				'Cannot determine error position. This most likely means it originated in node_modules.'
+			)
+		);
+		process.stderr.write('\n\n');
 	}
 	process.stderr.write(
 		`This ${
