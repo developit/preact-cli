@@ -12,6 +12,7 @@ module.exports = function (env, options = {}) {
 						browsers: options.browsers,
 					},
 					exclude: ['transform-regenerator', 'transform-async-to-generator'],
+        				bugfixes: true,
 				},
 			],
 		],
