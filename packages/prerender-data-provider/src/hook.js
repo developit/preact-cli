@@ -1,5 +1,5 @@
 import { useContext, useState } from 'preact/hooks';
-import { normalizeUrl, getPrerenderdata, checkProps } from './utils';
+import { normalizeUrl, getPrerenderdata, checkProps, getUrlFromProps } from './utils';
 import { PrerenderDataContext } from './context';
 import { PRERENDER_DATA_FILE_NAME } from './constants';
 
@@ -12,6 +12,7 @@ function usePrerenderData(props, doAutomaticFetch = true) {
 	});
 	const contextValue = useContext(PrerenderDataContext);
 	checkProps(props);
+	props.url = getUrlFromProps(props);
 
 	async function fetchPreRenderData() {
 		setState({
