@@ -1,11 +1,13 @@
-/* global __webpack_public_path__ */
-
 import * as Preact from 'preact';
 const { h, render, hydrate } = Preact;
 
 const interopDefault = m => (m && m.default ? m.default : m);
 
 const normalizeURL = url => (url[url.length - 1] === '/' ? url : url + '/');
+
+// Service workers are not allowed to be loaded from external domain
+const PROTOCOL_RE = /^(http(s)?:\/\/)/;
+const SW_PATH = PROTOCOL_RE.test(__webpack_public_path__) ? '' : __webpack_public_path__;
 
 if (process.env.NODE_ENV === 'development') {
 	// enable preact devtools
@@ -14,17 +16,17 @@ if (process.env.NODE_ENV === 'development') {
 	// only add a debug sw if webpack service worker is not requested.
 	if (process.env.ADD_SW === undefined && 'serviceWorker' in navigator) {
 		// eslint-disable-next-line no-undef
-		navigator.serviceWorker.register(__webpack_public_path__ + 'sw-debug.js');
+		navigator.serviceWorker.register(SW_PATH + 'sw-debug.js');
 	} else if (process.env.ADD_SW && 'serviceWorker' in navigator) {
 		// eslint-disable-next-line no-undef
 		navigator.serviceWorker.register(
-			__webpack_public_path__ + (process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
+			SW_PATH + (process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
 		);
 	}
 } else if (process.env.ADD_SW && 'serviceWorker' in navigator) {
 	// eslint-disable-next-line no-undef
 	navigator.serviceWorker.register(
-		__webpack_public_path__ + (process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
+		SW_PATH + (process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
 	);
 }
 
