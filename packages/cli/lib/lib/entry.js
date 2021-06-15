@@ -14,17 +14,21 @@ if (process.env.NODE_ENV === 'development') {
 	// only add a debug sw if webpack service worker is not requested.
 	if (process.env.ADD_SW === undefined && 'serviceWorker' in navigator) {
 		// eslint-disable-next-line no-undef
-		navigator.serviceWorker.register(__webpack_public_path__ + 'sw-debug.js');
+		navigator.serviceWorker.register(
+			normalizeURL(__webpack_public_path__) + 'sw-debug.js'
+		);
 	} else if (process.env.ADD_SW && 'serviceWorker' in navigator) {
 		// eslint-disable-next-line no-undef
 		navigator.serviceWorker.register(
-			__webpack_public_path__ + (process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
+			normalizeURL(__webpack_public_path__) +
+				(process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
 		);
 	}
 } else if (process.env.ADD_SW && 'serviceWorker' in navigator) {
 	// eslint-disable-next-line no-undef
 	navigator.serviceWorker.register(
-		__webpack_public_path__ + (process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
+		normalizeURL(__webpack_public_path__) +
+			(process.env.ES_BUILD ? 'sw-esm.js' : 'sw.js')
 	);
 }
 
