@@ -32,8 +32,7 @@ let app = interopDefault(require('preact-cli-entrypoint'));
 
 if (typeof app === 'function') {
 	let root =
-		document.getElementById('preact_root') || document.body.firstElementChild;
-
+		document.getElementById('preact_root') || document.body;
 	let init = () => {
 		let app = interopDefault(require('preact-cli-entrypoint'));
 		let preRenderData = {};
@@ -50,6 +49,7 @@ if (typeof app === 'function') {
 		 * to send other data like at some point in time.
 		 */
 		const CLI_DATA = { preRenderData };
+
 		const currentURL = preRenderData.url ? normalizeURL(preRenderData.url) : '';
 		const canHydrate =
 			process.env.PRERENDER &&
@@ -57,7 +57,8 @@ if (typeof app === 'function') {
 			hydrate &&
 			currentURL === normalizeURL(location.pathname);
 		const doRender = canHydrate ? hydrate : render;
-		root = doRender(h(app, { CLI_DATA }), document.body, root);
+		root = doRender(h(app, { CLI_DATA }), root);
+
 	};
 
 	if (module.hot) module.hot.accept('preact-cli-entrypoint', init);
