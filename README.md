@@ -30,7 +30,7 @@
 
 - **100/100 Lighthouse score**, right out of the box ([proof])
 - Fully **automatic code splitting** for routes _(see [Route-Based Code Splitting](#route-based-code-splitting))_
-- Transparently code-split any component with an [`async!`] prefix
+- Transparently code-split any component with an [`async!`] prefix _(pending [TypeScript](https://github.com/preactjs-templates/typescript) support, use `components/async` directory instead)_
 - Auto-generated [Service Workers] for offline caching powered by [Workbox]
 - [PRPL] pattern support for efficient loading
 - Zero-configuration pre-rendering / server-side rendering hydration
@@ -76,7 +76,7 @@ Current available templates include:
 
 - [netlify] - Netlify CMS template using preact.
 
-- [typescript] - Default template implemented in TypeScript
+- [typescript] - Default template implemented in TypeScript. NOTE: TypeScript by default does not support `async!` import syntax.
 
 - [widget] - Template for a widget to be embedded in another website.
 
@@ -421,4 +421,4 @@ Automatic code splitting is applied to all JavaScript and TypeScript files in th
 > + import Profile from './routes/profile';
 > ```
 >
-> This is an intentional limitation that ensures effective code splitting. For components that need named exports, place them in a directory that doesn't trigger automatic code splitting. You can then manually code-split the default export by re-exporting it from `routes/` or importing it with the `"async!"` prefix.
+> This is an intentional limitation that ensures effective code splitting. For components that need named exports, place them in a directory that doesn't trigger automatic code splitting. You can then manually code-split the default export by re-exporting it from `routes/`, `components/async/` or importing it with the `"async!"` prefix.
